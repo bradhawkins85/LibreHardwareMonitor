@@ -67,7 +67,7 @@ public sealed partial class MainForm : Form
     private UserRadioGroup _strokeThickness;
     private double _plotStrokeThickness = 2;
 
-    public MainForm()
+    public MainForm(bool startHidden = false)
     {
         InitializeComponent();
 
@@ -527,7 +527,11 @@ public sealed partial class MainForm : Form
 
         startupMenuItem.Visible = _startupManager.IsAvailable;
 
-        if (startMinMenuItem.Checked)
+        if (startHidden)
+        {
+            // Form stays hidden; accessible via the system tray icon
+        }
+        else if (startMinMenuItem.Checked)
         {
             if (!minTrayMenuItem.Checked)
             {

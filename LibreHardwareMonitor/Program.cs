@@ -20,10 +20,11 @@ public static class Program
             Environment.Exit(0);
 
         bool startWebServer = Array.Exists(args, arg => arg.Equals("-web", StringComparison.OrdinalIgnoreCase));
+        bool startHidden = Array.Exists(args, arg => arg.Equals("-hidden", StringComparison.OrdinalIgnoreCase));
 
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
-        using (MainForm form = new MainForm())
+        using (MainForm form = new MainForm(startHidden))
         {
             form.FormClosed += delegate
             {
