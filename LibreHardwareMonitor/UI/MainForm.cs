@@ -67,7 +67,7 @@ public sealed partial class MainForm : Form
     private UserRadioGroup _strokeThickness;
     private double _plotStrokeThickness = 2;
 
-    public MainForm()
+    public MainForm(bool startHidden = false)
     {
         InitializeComponent();
 
@@ -527,7 +527,12 @@ public sealed partial class MainForm : Form
 
         startupMenuItem.Visible = _startupManager.IsAvailable;
 
-        if (startMinMenuItem.Checked)
+        if (startHidden)
+        {
+            // Do not call Show() - the form stays hidden and is accessible via the system tray icon.
+            // This mirrors the existing "start minimized to tray" behaviour.
+        }
+        else if (startMinMenuItem.Checked)
         {
             if (!minTrayMenuItem.Checked)
             {
