@@ -14,10 +14,12 @@ namespace LibreHardwareMonitor;
 public static class Program
 {
     [STAThread]
-    public static void Main()
+    public static void Main(string[] args)
     {
         if (!AllRequiredFilesAvailable())
             Environment.Exit(0);
+
+        bool startWebServer = Array.Exists(args, arg => arg.Equals("-web", StringComparison.OrdinalIgnoreCase));
 
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
@@ -27,6 +29,8 @@ public static class Program
             {
                 Application.Exit();
             };
+            if (startWebServer)
+                form.StartWebServer();
             Application.Run();
         }
     }

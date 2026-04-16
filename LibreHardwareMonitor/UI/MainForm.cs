@@ -570,6 +570,11 @@ public sealed partial class MainForm : Form
 
     public HttpServer Server { get; }
 
+    public void StartWebServer()
+    {
+        _runWebServer.Value = true;
+    }
+
     private void BackgroundUpdater_DoWork(object sender, DoWorkEventArgs e)
     {
         _computer.Accept(_updateVisitor);
