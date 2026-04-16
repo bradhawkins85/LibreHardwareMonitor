@@ -285,6 +285,19 @@ public sealed partial class MainForm : Form
         _readBatterySensors = new UserOption("batteryMenuItem", true, batteryMenuItem, _settings);
         _readBatterySensors.Changed += delegate { _computer.IsBatteryEnabled = _readBatterySensors.Value; };
 
+        // Explicitly synchronize hardware switches once at startup so sensor groups are
+        // initialized even if no menu interaction occurs before the web server starts.
+        _computer.IsMotherboardEnabled = _readMainboardSensors.Value;
+        _computer.IsCpuEnabled = _readCpuSensors.Value;
+        _computer.IsMemoryEnabled = _readRamSensors.Value;
+        _computer.IsGpuEnabled = _readGpuSensors.Value;
+        _computer.IsPowerMonitorEnabled = _readPowerMonitorSensors.Value;
+        _computer.IsControllerEnabled = _readFanControllersSensors.Value;
+        _computer.IsStorageEnabled = _readHddSensors.Value;
+        _computer.IsNetworkEnabled = _readNicSensors.Value;
+        _computer.IsPsuEnabled = _readPsuSensors.Value;
+        _computer.IsBatteryEnabled = _readBatterySensors.Value;
+
         // Perform the initial hardware update after all hardware categories have been enabled.
         // UserOption.Changed fires immediately on registration, so all hardware groups are
         // added to the computer before this call – ensuring sensors are activated and have
@@ -583,6 +596,8 @@ public sealed partial class MainForm : Form
 
     public void StartWebServer()
     {
+        // Prime sensor values before serving the first request when auto-starting with -web.
+        _computer.Accept(_updateVisitor);
         _runWebServer.Value = true;
     }
 
