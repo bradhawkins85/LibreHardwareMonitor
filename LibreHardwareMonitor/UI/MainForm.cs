@@ -184,6 +184,7 @@ public sealed partial class MainForm : Form
         }
 
         _computer.Open();
+        _computer.Accept(_updateVisitor);
 
         static void InstallPawnIO()
         {
