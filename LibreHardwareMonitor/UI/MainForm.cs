@@ -184,7 +184,6 @@ public sealed partial class MainForm : Form
         }
 
         _computer.Open();
-        _computer.Accept(_updateVisitor);
 
         static void InstallPawnIO()
         {
@@ -285,6 +284,12 @@ public sealed partial class MainForm : Form
 
         _readBatterySensors = new UserOption("batteryMenuItem", true, batteryMenuItem, _settings);
         _readBatterySensors.Changed += delegate { _computer.IsBatteryEnabled = _readBatterySensors.Value; };
+
+        // Perform the initial hardware update after all hardware categories have been enabled.
+        // UserOption.Changed fires immediately on registration, so all hardware groups are
+        // added to the computer before this call – ensuring sensors are activated and have
+        // values before the web server can serve its first data.json request.
+        _computer.Accept(_updateVisitor);
 
         _showGadget = new UserOption("gadgetMenuItem", false, gadgetMenuItem, _settings);
 

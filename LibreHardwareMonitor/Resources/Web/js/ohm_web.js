@@ -17,23 +17,22 @@ ko.bindingHandlers.treeTable = {
   } 
 };
 
-var node = function(config, parent) {
-  this.parent = parent;
-  var _this = this;
-
-  var mappingOptions = {
-    Children : {
+function makeMappingOptions(parent) {
+  return {
+    Children: {
       create: function(args) {
-        return new node(args.data, _this);
-      }
-      ,
+        return new node(args.data, parent);
+      },
       key: function(data) {
         return ko.utils.unwrapObservable(data.id);
       }
     }
   };
+}
 
-  ko.mapping.fromJS(config, mappingOptions, this);
+var node = function(config, parent) {
+  this.parent = parent;
+  ko.mapping.fromJS(config, makeMappingOptions(this), this);
 }
 
 $(function(){
@@ -62,7 +61,7 @@ $(function(){
 
       viewModel.update = function() {
         $.getJSON('data.json', function(data) {
-          ko.mapping.fromJS(data, {}, viewModel);
+          ko.mapping.fromJS(data, makeMappingOptions(viewModel), viewModel);
         });
       }
 
