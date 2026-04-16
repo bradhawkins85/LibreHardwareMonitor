@@ -529,7 +529,8 @@ public sealed partial class MainForm : Form
 
         if (startHidden)
         {
-            // Form stays hidden; accessible via the system tray icon
+            // Do not call Show() - the form stays hidden and is accessible via the system tray icon.
+            // This mirrors the existing "start minimized to tray" behaviour.
         }
         else if (startMinMenuItem.Checked)
         {
