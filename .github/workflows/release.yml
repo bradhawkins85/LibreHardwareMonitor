@@ -1,0 +1,92 @@
+name: release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: windows-2022
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+      - uses: nuget/setup-nuget@v2
+      - uses: microsoft/setup-msbuild@v1.1
+        with:
+          msbuild-architecture: x64
+
+      - name: Restore application packages
+        run: dotnet restore LibreHardwareMonitor\LibreHardwareMonitor.csproj
+
+      - name: Build application
+        run: dotnet build LibreHardwareMonitor\LibreHardwareMonitor.csproj -c Release --no-restore -p:Platform=x64
+
+      - name: Zip net472 application
+        run: Compress-Archive -Path bin\Release\net472\* -DestinationPath LibreHardwareMonitor.zip
+
+      - name: Zip net10.0 application
+        run: Compress-Archive -Path bin\Release\net10.0-windows\* -DestinationPath LibreHardwareMonitor-net10.zip
+
+      - name: Upload net472 application to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: LibreHardwareMonitor.zip
+
+      - name: Upload net10.0 application to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: LibreHardwareMonitor-net10.zip
+
+      - name: Restore library packages
+        run: dotnet restore LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj
+
+      - name: Build x64 libraries
+        run: dotnet build LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release --no-restore -p:Platform=x64
+
+      - name: Zip x64 libraries
+        run: Compress-Archive -Path bin\Release\x64\* -DestinationPath LibreHardwareMonitorLib-x64.zip
+
+      - name: Upload x64 libraries to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: LibreHardwareMonitorLib-x64.zip
+
+      - name: Build x86 libraries
+        run: dotnet build LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release --no-restore -p:Platform=x86
+
+      - name: Zip x86 libraries
+        run: Compress-Archive -Path bin\Release\x86\* -DestinationPath LibreHardwareMonitorLib-x86.zip
+
+      - name: Upload x86 libraries to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: LibreHardwareMonitorLib-x86.zip
+
+      - name: Build ARM64 libraries
+        run: dotnet build LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release --no-restore -p:Platform=ARM64
+
+      - name: Zip ARM64 libraries
+        run: Compress-Archive -Path bin\Release\ARM64\* -DestinationPath LibreHardwareMonitorLib-ARM64.zip
+
+      - name: Upload ARM64 libraries to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: LibreHardwareMonitorLib-ARM64.zip
+
+      - name: Build reference libraries
+        run: dotnet build LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release --no-restore -p:BuildOnlyRefs=true
+
+      - name: Pack main nupkg
+        run: dotnet pack LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release -p:PackMainNuget=true --no-build --output bin\Release
+
+      - name: Upload nupkg to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: bin/Release/LibreHardwareMonitorLib.*.nupkg
+
+      - name: Publish to NuGet
+        run: nuget push bin\Release\LibreHardwareMonitorLib.*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
